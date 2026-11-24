@@ -1,17 +1,14 @@
-# Industrial Predictive Maintenance
+
 
 ## Sprint 1 — Data Ingestion & Exploratory Data Analysis
 
-This project aims to support proactive industrial maintenance by preparing machine sensor data for Remaining Useful Life (RUL) prediction. RUL is the estimated number of operating cycles remaining before a machine reaches failure.
-
-This branch covers data ingestion, profiling, validation, missingness analysis, and exploratory data analysis (EDA). Its purpose is to understand the raw data and document observed quality issues before the cleaning and SQL migration stages. No raw data is modified, and no cleaning methods are prescribed.
+This branch covers data ingestion, profiling, validation, missingness analysis, and exploratory data analysis (EDA). Its purpose is to understand the raw data and document observed quality issues. No raw data is modified, and no cleaning methods are prescribed.
 
 ## Dataset
 
 The Machine Degradation dataset is synthetic and contains observations from 100 simulated machines.
 
-**Source:** [Machine Degradation dataset on Hugging Face](https://huggingface.co/datasets/rasinmuhammed/predictive-maintenance-remaining-useful-life/tree/main) (Misata-generated dataset). The original Misata link now points to a paid offering; the Hugging Face copy matches the expected dataset dimensions, but exact equivalence to the original files has not been independently established.
-
+**Source:** [Machine Degradation dataset on Hugging Face](https://huggingface.co/datasets/rasinmuhammed/predictive-maintenance-remaining-useful-life/tree/main) (Misata-generated dataset). 
 | File | Rows | Columns | Description |
 | --- | ---: | ---: | --- |
 | `readings.csv` | 23,118 | 13 | Sensor measurements, operating cycles, RUL and failure labels |
@@ -28,7 +25,6 @@ The raw dataset is maintained separately in the shared [`dataset` branch](https:
 ```text
 PredictiveMaint-Pipeline/
 ├── data/
-│   └── raw/
 │       ├── readings.csv
 │       ├── units.csv
 │       └── ground_truth.csv
