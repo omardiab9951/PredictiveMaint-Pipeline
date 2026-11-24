@@ -1,0 +1,75 @@
+# Machine degradation, a fleet run to failure.
+#
+# The failure time is declared. Damage accumulates toward it and every sensor
+# follows the damage, so remaining useful life is exact by construction rather
+# than annotated after the fact. That is the property the public predictive
+# maintenance datasets do not have: in AI4I 2020 tool wear is as likely to fall
+# as to rise between consecutive readings of the same machine, and there is no
+# remaining-life label at all.
+#
+#   pip install misata
+#   misata generate --config schema.yaml --output-dir ./data
+#
+# Change the fleet size, the life distribution or the sensors, and the labels
+# stay exact, because they are derived from the declaration rather than measured
+# off the output.
+
+name: machine_degradation
+seed: 2020
+
+tables:
+  readings:
+    rows: 100
+    columns:
+      # Which sensors this control run acquired. Real fleets are not fully
+      # instrumented on every pass, so some measurements are simply absent.
+      control_type: {type: categorical, choices: [A, B, C]}
+
+degradations:
+  - table: readings
+    units: 100
+    life_mean: 220
+    life_std: 45
+    life_min: 80
+    life_max: 400
+    damage_exponent: 1.3
+    failure_mode_column: failure_mode
+    # A mode that only labels the last row is decorative. Each one accentuates
+    # the measurement it actually shows up in, so the label is diagnosable
+    # rather than cosmetic.
+    failure_modes:
+      tool_wear:
+        weight: 0.35
+        accentuates: {tool_wear_min: 1.45, vibration_mm_s: 1.15}
+      heat_dissipation:
+        weight: 0.25
+        accentuates: {process_temperature_k: 2.60, air_temperature_k: 1.40}
+      power:
+        weight: 0.22
+        accentuates: {torque_nm: 1.55, rotational_speed_rpm: 1.45}
+      overstrain:
+        weight: 0.18
+        accentuates: {torque_nm: 1.35, vibration_mm_s: 1.60}
+    # Machines of the same design do not wear identically.
+    unit_variation: 0.14
+    responses:
+      # Accumulated wear never falls: material does not come back.
+      - {column: tool_wear_min, baseline: 0, at_failure: 250, noise: 1.0, decimals: 0, monotonic: true}
+      # Vibration RMS sits near its healthy value and then climbs steeply, which
+      # is what a spall opening up actually does to a health indicator.
+      - {column: vibration_mm_s, baseline: 0.8, at_failure: 5.2, shape: exponential, noise: 0.05, decimals: 3}
+      # A worn tool needs more torque.
+      - {column: torque_nm, baseline: 40.0, at_failure: 54.0, noise: 2.0, decimals: 2}
+      # Heat dissipation worsens, so the process runs hotter than the air.
+      - {column: process_temperature_k, baseline: 310.0, at_failure: 316.0, shape: sqrt, noise: 0.3, decimals: 2}
+      - {column: air_temperature_k, baseline: 300.0, at_failure: 300.6, noise: 0.4, decimals: 2}
+      # The spindle slows as load rises to hold power roughly constant.
+      - {column: rotational_speed_rpm, baseline: 1580, at_failure: 1310, noise: 35, decimals: 0}
+
+# Not every sensor is read on every pass. Which ones depends on the control
+# performed, so pairs of measurements are systematically absent together rather
+# than missing at random.
+missingness:
+  - {table: readings, column: vibration_mm_s, when_column: control_type, when_op: "==", when_value: A, rate: 1.0, else_rate: 0.0}
+  - {table: readings, column: torque_nm, when_column: control_type, when_op: "==", when_value: B, rate: 1.0, else_rate: 0.0}
+  - {table: readings, column: air_temperature_k, when_column: control_type, when_op: "==", when_value: C, rate: 1.0, else_rate: 0.0}
