@@ -1,0 +1,26 @@
+{
+  "run_utc": "2026-11-26T14:27:06+00:00",
+  "seed": 2026,
+  "strict": false,
+  "python": "3.12.10",
+  "pandas": "3.1.1",
+  "numpy": "2.5.5",
+  "raw_sha256": {
+    "readings": "2215d85b7b1a8c18499704e7f9d54a3602b3ab2fcef33b54b0fcb33f05419cbf",
+    "units": "6cd693d3b3c669c1ec20a94c2f7c022faa84c52c771ab5ae651ebba011ee994c",
+    "ground_truth": "a8f4c9ab3a63d6900904fb30e987aab0c7572cad2b5cd33b995406da1603563d"
+  },
+  "rows_raw": {
+    "readings": 23118,
+    "units": 100,
+    "ground_truth": 23118
+  },
+  "rows_clean": {
+    "readings": 23118,
+    "units": 100,
+    "ground_truth": 23118
+  },
+  "negative_tool_wear_to_nan": 25,
+  "nonmonotonic_tool_wear_flagged": 0,
+  "warnings": []
+}

@@ -1,0 +1,41 @@
+timestamp_utc,step,table,column,operation,affected_rows,status,reason,method
+2026-11-26T14:27:06+00:00,load,readings,*,raw_loaded,23118,info,sha256=2215d85b7b1a8c18...,pandas.read_csv; working on deep copy.
+2026-11-26T14:27:06+00:00,load,units,*,raw_loaded,100,info,sha256=6cd693d3b3c669c1...,pandas.read_csv; working on deep copy.
+2026-11-26T14:27:06+00:00,load,ground_truth,*,raw_loaded,23118,info,sha256=a8f4c9ab3a63d690...,pandas.read_csv; working on deep copy.
+2026-11-26T14:27:06+00:00,schema,readings,*,schema_check,23118,passed,Required columns present.,Set difference against documented schema.
+2026-11-26T14:27:06+00:00,schema,units,*,schema_check,100,passed,Required columns present.,Set difference against documented schema.
+2026-11-26T14:27:06+00:00,schema,ground_truth,*,schema_check,23118,passed,Required columns present.,Set difference against documented schema.
+2026-11-26T14:27:06+00:00,baseline,readings,*,baseline_profile,23118,info,"cols=13, exact_duplicates=0, missing_cells=23118",pandas profile of raw table.
+2026-11-26T14:27:06+00:00,baseline,units,*,baseline_profile,100,info,"cols=4, exact_duplicates=0, missing_cells=0",pandas profile of raw table.
+2026-11-26T14:27:06+00:00,baseline,ground_truth,*,baseline_profile,23118,info,"cols=3, exact_duplicates=0, missing_cells=0",pandas profile of raw table.
+2026-11-26T14:27:06+00:00,keys,readings,"unit_id,cycle",primary_key_check,23118,passed,Keys non-null and unique.,isna / duplicated on key columns.
+2026-11-26T14:27:06+00:00,keys,units,unit_id,primary_key_check,100,passed,Keys non-null and unique.,isna / duplicated on key columns.
+2026-11-26T14:27:06+00:00,keys,ground_truth,"unit_id,cycle",primary_key_check,23118,passed,Keys non-null and unique.,isna / duplicated on key columns.
+2026-11-26T14:27:06+00:00,keys,readings,unit_id,foreign_key_check,23118,passed,All unit_id exist in units.,Set inclusion.
+2026-11-26T14:27:06+00:00,keys,ground_truth,unit_id,foreign_key_check,23118,passed,All unit_id exist in units.,Set inclusion.
+2026-11-26T14:27:06+00:00,keys,readings|ground_truth,"unit_id,cycle",key_alignment_check,23118,passed,Machine-cycle keys match exactly across tables.,MultiIndex bidirectional inclusion.
+2026-11-26T14:27:06+00:00,structural,readings,vibration_mm_s,preserved_structural_missingness,9347,preserved,Sensor not acquired for control_type A; NaN is not zero.,Retained as NaN; no imputation.
+2026-11-26T14:27:06+00:00,structural,readings,torque_nm,preserved_structural_missingness,7501,preserved,Sensor not acquired for control_type B; NaN is not zero.,Retained as NaN; no imputation.
+2026-11-26T14:27:06+00:00,structural,readings,air_temperature_k,preserved_structural_missingness,6270,preserved,Sensor not acquired for control_type C; NaN is not zero.,Retained as NaN; no imputation.
+2026-11-26T14:27:06+00:00,tool_wear,readings,tool_wear_min,invalid_negative_to_missing,25,applied,"Negative accumulated tool wear is physically invalid (baseline 0, monotonic accumulation).",Set values < 0 to NaN; rows retained; no interpolation.
+2026-11-26T14:27:06+00:00,tool_wear,readings,tool_wear_invalid_negative,flag_column_added,23118,applied,Separates non-structural NaNs (invalid wear) from structural NaNs.,int8 indicator: 1 where raw tool_wear_min < 0.
+2026-11-26T14:27:06+00:00,tool_wear,readings,tool_wear_nonmonotonic,monotonicity_flag_added,0,flagged,Wear below earlier running max within unit; 0 unit(s) affected.,"Per-unit cummax (NaN-aware) comparison, ordered by cycle; values unchanged."
+2026-11-26T14:27:06+00:00,duplicates,readings,*,duplicate_check,0,passed,No exact duplicate rows or duplicate keys.,DataFrame.duplicated on full row and key.
+2026-11-26T14:27:06+00:00,duplicates,units,*,duplicate_check,0,passed,No exact duplicate rows or duplicate keys.,DataFrame.duplicated on full row and key.
+2026-11-26T14:27:06+00:00,duplicates,ground_truth,*,duplicate_check,0,passed,No exact duplicate rows or duplicate keys.,DataFrame.duplicated on full row and key.
+2026-11-26T14:27:06+00:00,dtypes,readings,"cycle,rul_cycles,machine_failure",cast_int64,23118,applied,"Integer fields validated (no NaN, no fractions).",to_numeric + integrality check.
+2026-11-26T14:27:06+00:00,dtypes,readings,"tool_wear_min,vibration_mm_s,torque_nm,process_temperature_k,air_temperature_k,rotational_speed_rpm",cast_float64,23118,applied,Sensor measurements normalised to float64.,to_numeric(errors='raise').
+2026-11-26T14:27:06+00:00,dtypes,units,life_cycles,cast_int64,100,applied,Integer field validated.,to_numeric + integrality check.
+2026-11-26T14:27:06+00:00,dtypes,ground_truth,"cycle,damage",cast_int64_float64,23118,applied,Key and damage dtypes normalised.,to_numeric(errors='raise').
+2026-11-26T14:27:06+00:00,dtypes,*,unit_id + categoricals,cast_string,0,applied,Keys and categorical labels stored as pandas string dtype; labels unchanged.,astype('string').
+2026-11-26T14:27:06+00:00,consistency,readings,rul_cycles,rul_nonnegative_check,0,passed,RUL must be >= 0.,rul_cycles >= 0
+2026-11-26T14:27:06+00:00,consistency,readings,machine_failure,binary_label_check,0,passed,Failure flag must be 0/1.,"isin([0,1])"
+2026-11-26T14:27:06+00:00,consistency,ground_truth,damage,finite_damage_check,0,passed,Damage must be finite.,np.isfinite
+2026-11-26T14:27:06+00:00,consistency,units,life_cycles,positive_life_check,0,passed,Lifetime must be > 0.,life_cycles > 0
+2026-11-26T14:27:06+00:00,consistency,readings|units,"cycle,life_cycles",cycle_within_life_check,0,passed,Max observed cycle should not exceed unit lifetime.,groupby max(cycle) <= life_cycles
+2026-11-26T14:27:06+00:00,consistency,readings|units,split,split_consistency_check,0,passed,Unit split must match between tables.,Per-unit equality.
+2026-11-26T14:27:06+00:00,consistency,readings|units,failure_mode,failure_mode_consistency_check,0,passed,Unit failure mode (units) must appear among that unit's labels in readings.,Per-unit membership of units.failure_mode in set(readings.failure_mode).
+2026-11-26T14:27:06+00:00,outliers,readings,"tool_wear_min,vibration_mm_s,torque_nm,process_temperature_k,air_temperature_k,rotational_speed_rpm",iqr_review_only,3336,reviewed,"Potential statistical outliers, not confirmed errors; retained unchanged.","1.5*IQR global, per control_type, and per life-position decile (tool wear)."
+2026-11-26T14:27:06+00:00,final,*,*,final_integrity_checks,0,passed,"Row counts, keys, labels, metadata, ground truth, structural NaNs, and tool-wear-only-negative-to-NaN invariants verified.",Assertions against raw copies.
+2026-11-26T14:27:06+00:00,final,*,*,raw_immutability_check,0,passed,Raw file SHA-256 identical before and after run.,hashlib.sha256.
+2026-11-26T14:27:06+00:00,save,*,*,outputs_written,5,applied,Clean tables and review reports written to clean_dir / log_dir.,DataFrame.to_csv(index=False).

@@ -1,0 +1,4 @@
+sensor,expected_control_type,total_missing,expected_structural_missing,unexpected_missing,unexpectedly_observed_in_control
+vibration_mm_s,A,9347,9347,0,0
+torque_nm,B,7501,7501,0,0
+air_temperature_k,C,6270,6270,0,0
